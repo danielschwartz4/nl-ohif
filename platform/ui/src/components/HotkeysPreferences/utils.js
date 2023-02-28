@@ -34,36 +34,55 @@ const removeErrors = (currentErrors, pressedKeys, id, hotkeys) => {
   const pressedLabel = hotkeys[id].label;
   let newLabel;
   if (Object.keys(currentErrors.currentErrors).length) {
-    // First delete the error once we delete the error
-    Object.keys(currentErrors.currentErrors).every((key) => {
-      if (currentErrors.currentErrors[key]) {
-        const [errorLabel, errorKeys] = extractInfoFromError(currentErrors.currentErrors[key]);
-        if (errorLabel === pressedLabel && pressedKeys.join("+") !== errorKeys) {
-          hotkeys[key]
-          newLabel = hotkeys[key].label
-          currentErrors.currentErrors[key] = undefined
-          return false
+    // First delete the error once we correctly update the hotkey
+    Object.keys(currentErrors.currentErrors).every(key => {
+      if (currentErrors.currentErrors[key]['error']) {
+        // const [errorLabel, errorKeys] = extractInfoFromError(
+        //   // currentErrors.currentErrors[key]
+        //   currentErrors.currentErrors[key]['error']
+        // );
+        const errorLabel = currentErrors.currentErrors[key]['label'];
+        const errorKeys = currentErrors.currentErrors[key]['keys'];
+        if (
+          errorLabel === pressedLabel &&
+          pressedKeys.join('+') !== errorKeys
+        ) {
+          // hotkeys[key];
+          newLabel = hotkeys[key].label;
+          currentErrors.currentErrors[key]['error'] = undefined;
+          return false;
         }
       }
-      return true
-    })
+      return true;
+    });
     // Then we relabel old errors so that all duplicate keys have the same error
-    Object.keys(currentErrors.currentErrors).forEach((key) => {
-      const error = currentErrors.currentErrors[key]
+    Object.keys(currentErrors.currentErrors).forEach(key => {
+      // const error = currentErrors.currentErrors[key];
+      // !! Refactor so not so much repetitive code like currentErrors.currentErrors[key]
+      const error = currentErrors.currentErrors[key]['error'];
+      // !! Check if error label and error keys
       if (error) {
-        const [errorLabel, errorKeys] = extractInfoFromError(error);
-        if (errorLabel === pressedLabel && pressedKeys.join("+") !== errorKeys) { 
-          currentErrors.currentErrors[key] = currentErrors.currentErrors[key].replace(
+        // const [errorLabel, errorKeys] = extractInfoFromError(error);
+        const errorLabel = currentErrors.currentErrors[key]['label'];
+        const errorKeys = currentErrors.currentErrors[key]['keys'];
+
+        if (
+          errorLabel === pressedLabel &&
+          pressedKeys.join('+') !== errorKeys
+        ) {
+          currentErrors.currentErrors[key][
+            'error'
+          ] = currentErrors.currentErrors[key]['error'].replace(
             `"${errorLabel}"`,
             `"${newLabel}"`
-          )
+          );
         }
       }
-    })
+    });
   }
-  
-  return {currentErrors: currentErrors}
-}
+
+  return { currentErrors: currentErrors };
+};
 
 /**
  * Validate a hotkey change
@@ -76,17 +95,21 @@ const removeErrors = (currentErrors, pressedKeys, id, hotkeys) => {
  * @returns {Object} {error} validation error
  */
 const validate = ({ commandName, pressedKeys, hotkeys, currentErrors }) => {
-  
-  const updatedErrors = removeErrors(currentErrors, pressedKeys, commandName, hotkeys)
+  const updatedErrors = removeErrors(
+    currentErrors,
+    pressedKeys,
+    commandName,
+    hotkeys
+  );
   for (const validator of hotkeysValidators) {
     const validation = validator({
       commandName,
       pressedKeys,
-      hotkeys
+      hotkeys,
     });
-    
+    console.log('VALIDATION', validation);
     if (validation && validation.error) {
-      return {...validation, ...updatedErrors};
+      return { ...validation, ...updatedErrors };
     }
   }
   return { error: undefined, ...updatedErrors };
@@ -110,4 +133,8 @@ const extractInfoFromError = error => {
   }
 };
 
-export { validate, splitHotkeyDefinitionsAndCreateTuples, extractInfoFromError };
+export {
+  validate,
+  splitHotkeyDefinitionsAndCreateTuples,
+  extractInfoFromError,
+};

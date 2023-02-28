@@ -53,8 +53,13 @@ const conflictingValidator = ({ commandName, pressedKeys, hotkeys }) => {
   );
 
   if (conflictingCommand) {
+    // return {
+    //   error: `"${conflictingCommand.label}" is already using the "${pressedKeys}" shortcut.`,
+    // };
     return {
       error: `"${conflictingCommand.label}" is already using the "${pressedKeys}" shortcut.`,
+      keys: pressedKeys,
+      label: conflictingCommand.label,
     };
   }
 };
@@ -75,6 +80,7 @@ const disallowedValidator = ({ pressedKeys = [] }) => {
       error: `"${formatPressedKeys(
         pressedKeys
       )}" shortcut combination is not allowed`,
+      keys: formatPressedKeys(pressedKeys),
     };
   }
 };
