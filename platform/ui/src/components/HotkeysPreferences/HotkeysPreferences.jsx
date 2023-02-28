@@ -36,13 +36,10 @@ const HotkeysPreferences = ({
   }
 
   const onHotkeyChangeHandler = (id, definition) => {
-    console.log(definition);
     if (definition.keys.join('+') === hotkeyDefinitions[id].keys.join('+')) {
       return;
     }
 
-    // !! check for edge cases that are other errors (not duplicate errors)
-    // !! Comments are old code
     let {
       error,
       currentErrors,
@@ -57,27 +54,23 @@ const HotkeysPreferences = ({
 
     // Make sure new errors are consistent with old errors
     Object.keys(currentErrors.currentErrors).forEach(key => {
+      const currentError = currentErrors.currentErrors[key];
       if (error && currentErrors.currentErrors[key]) {
-        // const [errorToolName, errorKey] = extractInfoFromError(
-        //   currentErrors.currentErrors[key]
-        // );
-        // const [newErrorToolName, newErrorKey] = extractInfoFromError(error);
-        const errorToolName = currentErrors.currentErrors[key]['label'];
-        const errorKey = currentErrors.currentErrors[key]['keys'];
+        const errorToolName = currentError['label'];
+        const errorKey = currentError['keys'];
         const newErrorToolName = conflictingLabel;
-        const newErrorKey = conflictingKeys;
-
-        if (newErrorKey === errorKey && newErrorToolName !== errorToolName) {
+        const newErrorKey = conflictingKeys.join('+');
+        if (
+          newErrorKey === errorKey.join('+') &&
+          newErrorToolName !== errorToolName
+        ) {
           error = error.replace(`"${newErrorToolName}"`, `"${errorToolName}"`);
+          currentErrors.currentErrors[key]['keys'] = errorKey;
+          currentErrors.currentErrors[key]['label'] = errorToolName;
         }
       }
     });
-    console.log(conflictingKeys, conflictingLabel);
 
-    // setErrors(prevState => {
-    //   const errors = { ...prevState, [id]: error };
-    //   return errors;
-    // });
     setErrors(prevState => {
       const errors = {
         ...prevState,
@@ -90,7 +83,6 @@ const HotkeysPreferences = ({
       return errors;
     });
 
-    // onChange(id, definition, { ...errors, [id]: error });
     onChange(id, definition, {
       ...errors,
       [id]: {
@@ -112,7 +104,6 @@ const HotkeysPreferences = ({
                 {hotkeys.map((hotkey, hotkeyIndex) => {
                   const [id, definition] = hotkey;
                   const isFirst = hotkeyIndex === 0;
-                  // const error = errors[id];
                   let error;
                   if (errors[id] && errors[id]['error']) {
                     error = errors[id]['error'];

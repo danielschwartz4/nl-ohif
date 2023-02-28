@@ -53,9 +53,6 @@ const conflictingValidator = ({ commandName, pressedKeys, hotkeys }) => {
   );
 
   if (conflictingCommand) {
-    // return {
-    //   error: `"${conflictingCommand.label}" is already using the "${pressedKeys}" shortcut.`,
-    // };
     return {
       error: `"${conflictingCommand.label}" is already using the "${pressedKeys}" shortcut.`,
       keys: pressedKeys,

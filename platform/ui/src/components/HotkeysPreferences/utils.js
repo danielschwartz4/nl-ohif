@@ -36,20 +36,18 @@ const removeErrors = (currentErrors, pressedKeys, id, hotkeys) => {
   if (Object.keys(currentErrors.currentErrors).length) {
     // First delete the error once we correctly update the hotkey
     Object.keys(currentErrors.currentErrors).every(key => {
-      if (currentErrors.currentErrors[key]['error']) {
-        // const [errorLabel, errorKeys] = extractInfoFromError(
-        //   // currentErrors.currentErrors[key]
-        //   currentErrors.currentErrors[key]['error']
-        // );
-        const errorLabel = currentErrors.currentErrors[key]['label'];
-        const errorKeys = currentErrors.currentErrors[key]['keys'];
+      const currentError = currentErrors.currentErrors[key];
+      if (currentError['error']) {
+        const errorLabel = currentError['label'];
+        const errorKeys = currentError['keys'].join('+');
         if (
           errorLabel === pressedLabel &&
           pressedKeys.join('+') !== errorKeys
         ) {
-          // hotkeys[key];
           newLabel = hotkeys[key].label;
-          currentErrors.currentErrors[key]['error'] = undefined;
+          currentError['error'] = undefined;
+          currentError['keys'] = undefined;
+          currentError['label'] = undefined;
           return false;
         }
       }
@@ -57,25 +55,23 @@ const removeErrors = (currentErrors, pressedKeys, id, hotkeys) => {
     });
     // Then we relabel old errors so that all duplicate keys have the same error
     Object.keys(currentErrors.currentErrors).forEach(key => {
-      // const error = currentErrors.currentErrors[key];
-      // !! Refactor so not so much repetitive code like currentErrors.currentErrors[key]
-      const error = currentErrors.currentErrors[key]['error'];
+      const currentError = currentErrors.currentErrors[key];
+      const error = currentError['error'];
       // !! Check if error label and error keys
       if (error) {
-        // const [errorLabel, errorKeys] = extractInfoFromError(error);
-        const errorLabel = currentErrors.currentErrors[key]['label'];
-        const errorKeys = currentErrors.currentErrors[key]['keys'];
+        const errorLabel = currentError['label'];
+        const errorKeys = currentError['keys'].join('+');
 
         if (
           errorLabel === pressedLabel &&
           pressedKeys.join('+') !== errorKeys
         ) {
-          currentErrors.currentErrors[key][
-            'error'
-          ] = currentErrors.currentErrors[key]['error'].replace(
+          currentError['error'] = currentError['error'].replace(
             `"${errorLabel}"`,
             `"${newLabel}"`
           );
+          currentError['keys'] = pressedKeys;
+          currentError['label'] = newLabel;
         }
       }
     });
@@ -107,7 +103,6 @@ const validate = ({ commandName, pressedKeys, hotkeys, currentErrors }) => {
       pressedKeys,
       hotkeys,
     });
-    console.log('VALIDATION', validation);
     if (validation && validation.error) {
       return { ...validation, ...updatedErrors };
     }
