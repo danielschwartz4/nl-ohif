@@ -36,18 +36,15 @@ const removeErrors = (currentErrors, pressedKeys, id, hotkeys) => {
   if (Object.keys(currentErrors.currentErrors).length) {
     // First delete the error once we correctly update the hotkey
     Object.keys(currentErrors.currentErrors).every(key => {
-      const currentError = currentErrors.currentErrors[key];
-      if (currentError['error']) {
-        const errorLabel = currentError['label'];
-        const errorKeys = currentError['keys'].join('+');
+      if (currentErrors.currentErrors[key]['error']) {
+        const errorLabel = currentErrors.currentErrors[key]['label'];
+        const errorKeys = currentErrors.currentErrors[key]['keys'];
         if (
           errorLabel === pressedLabel &&
           pressedKeys.join('+') !== errorKeys
         ) {
           newLabel = hotkeys[key].label;
-          currentError['error'] = undefined;
-          currentError['keys'] = undefined;
-          currentError['label'] = undefined;
+          currentErrors.currentErrors[key]['error'] = undefined;
           return false;
         }
       }
@@ -55,23 +52,15 @@ const removeErrors = (currentErrors, pressedKeys, id, hotkeys) => {
     });
     // Then we relabel old errors so that all duplicate keys have the same error
     Object.keys(currentErrors.currentErrors).forEach(key => {
-      const currentError = currentErrors.currentErrors[key];
-      const error = currentError['error'];
-      // !! Check if error label and error keys
+      const error = currentErrors.currentErrors[key]['error'];
       if (error) {
-        const errorLabel = currentError['label'];
-        const errorKeys = currentError['keys'].join('+');
-
+        const errorLabel = currentErrors.currentErrors[key]['label'];
+        const errorKeys = currentErrors.currentErrors[key]['keys'];
         if (
           errorLabel === pressedLabel &&
           pressedKeys.join('+') !== errorKeys
         ) {
-          currentError['error'] = currentError['error'].replace(
-            `"${errorLabel}"`,
-            `"${newLabel}"`
-          );
-          currentError['keys'] = pressedKeys;
-          currentError['label'] = newLabel;
+          currentErrors.currentErrors[key]['label'] = newLabel;
         }
       }
     });
@@ -110,26 +99,4 @@ const validate = ({ commandName, pressedKeys, hotkeys, currentErrors }) => {
   return { error: undefined, ...updatedErrors };
 };
 
-/**
- * Extract relevant toolName and key data from a validation error
- *
- * @param {Object} error {error}
- * @returns {array} [toolName, key] toolName and key from error
- */
-const extractInfoFromError = error => {
-  const regex = /"([^"]+)"[^"]+"([^"]+)"/;
-  const match = error.match(regex);
-  if (match !== null) {
-    const toolName = match[1];
-    const key = match[2];
-    return [toolName, key];
-  } else {
-    return null;
-  }
-};
-
-export {
-  validate,
-  splitHotkeyDefinitionsAndCreateTuples,
-  extractInfoFromError,
-};
+export { validate, splitHotkeyDefinitionsAndCreateTuples };

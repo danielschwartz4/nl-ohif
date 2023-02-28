@@ -6,11 +6,7 @@ import { HotkeyField, Typography } from '../';
 
 /* TODO: Move these configs and utils to core? */
 import { MODIFIER_KEYS } from './hotkeysConfig';
-import {
-  extractInfoFromError,
-  splitHotkeyDefinitionsAndCreateTuples,
-  validate,
-} from './utils';
+import { splitHotkeyDefinitionsAndCreateTuples, validate } from './utils';
 
 const HotkeysPreferences = ({
   disabled,
@@ -52,21 +48,16 @@ const HotkeysPreferences = ({
       currentErrors: { currentErrors: errors },
     });
 
+    let label;
+    let keys = conflictingKeys ? conflictingKeys.join('+') : undefined;
     // Make sure new errors are consistent with old errors
     Object.keys(currentErrors.currentErrors).forEach(key => {
-      const currentError = currentErrors.currentErrors[key];
-      if (error && currentErrors.currentErrors[key]) {
-        const errorToolName = currentError['label'];
-        const errorKey = currentError['keys'];
-        const newErrorToolName = conflictingLabel;
-        const newErrorKey = conflictingKeys.join('+');
-        if (
-          newErrorKey === errorKey.join('+') &&
-          newErrorToolName !== errorToolName
-        ) {
-          error = error.replace(`"${newErrorToolName}"`, `"${errorToolName}"`);
-          currentErrors.currentErrors[key]['keys'] = errorKey;
-          currentErrors.currentErrors[key]['label'] = errorToolName;
+      if (error && currentErrors.currentErrors[key]['error']) {
+        const errorToolName = currentErrors.currentErrors[key]['label'];
+        const errorKey = currentErrors.currentErrors[key]['keys'];
+        label = conflictingLabel;
+        if (keys === errorKey && label !== errorToolName) {
+          label = errorToolName;
         }
       }
     });
@@ -76,8 +67,8 @@ const HotkeysPreferences = ({
         ...prevState,
         [id]: {
           error: error,
-          keys: conflictingKeys ? conflictingKeys : null,
-          label: conflictingLabel ? conflictingLabel : null,
+          label: label ? label : conflictingLabel,
+          keys: keys ? keys : undefined,
         },
       };
       return errors;
@@ -87,12 +78,11 @@ const HotkeysPreferences = ({
       ...errors,
       [id]: {
         error: error,
-        keys: conflictingKeys ? conflictingKeys : null,
-        label: conflictingLabel ? conflictingLabel : null,
+        label: label ? label : conflictingLabel,
+        keys: keys ? keys : undefined,
       },
     });
   };
-  console.log('ERRORS', errors);
 
   return (
     <div className="flex flex-row justify-center">
@@ -107,6 +97,8 @@ const HotkeysPreferences = ({
                   let error;
                   if (errors[id] && errors[id]['error']) {
                     error = errors[id]['error'];
+                    error = error.replace('P1', errors[id]['label']);
+                    error = error.replace('P2', errors[id]['keys']);
                   }
 
                   const onChangeHandler = keys =>
