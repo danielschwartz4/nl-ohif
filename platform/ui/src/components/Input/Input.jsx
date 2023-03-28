@@ -19,6 +19,7 @@ const Input = ({
   className = '',
   transparent = false,
   type = 'text',
+  isTextArea = false,
   value,
   onChange,
   onFocus,
@@ -32,26 +33,49 @@ const Input = ({
   return (
     <div className={classnames('flex flex-col flex-1', containerClassName)}>
       <Label className={labelClassName} text={label}></Label>
-      <input
-        data-cy={`input-${id}`}
-        className={classnames(
-          label && 'mt-2',
-          className,
-          baseInputClasses,
-          transparentClasses[transparent],
-          { 'cursor-not-allowed': disabled }
-        )}
-        disabled={disabled}
-        readOnly={readOnly}
-        autoFocus={autoFocus}
-        type={type}
-        value={value}
-        onChange={onChange}
-        onFocus={onFocus}
-        onKeyPress={onKeyPress}
-        onKeyDown={onKeyDown}
-        {...otherProps}
-      />
+      {!isTextArea ? (
+        <input
+          data-cy={`input-${id}`}
+          className={classnames(
+            label && 'mt-2',
+            className,
+            baseInputClasses,
+            transparentClasses[transparent],
+            { 'cursor-not-allowed': disabled }
+          )}
+          disabled={disabled}
+          readOnly={readOnly}
+          autoFocus={autoFocus}
+          type={type}
+          value={value}
+          onChange={onChange}
+          onFocus={onFocus}
+          onKeyPress={onKeyPress}
+          onKeyDown={onKeyDown}
+          {...otherProps}
+        />
+      ) : (
+        <textarea
+          data-cy={`input-${id}`}
+          className={classnames(
+            label && 'mt-2',
+            className,
+            baseInputClasses,
+            transparentClasses[transparent],
+            { 'cursor-not-allowed': disabled }
+          )}
+          disabled={disabled}
+          readOnly={readOnly}
+          autoFocus={autoFocus}
+          type={type}
+          value={value}
+          onChange={onChange}
+          onFocus={onFocus}
+          onKeyPress={onKeyPress}
+          onKeyDown={onKeyDown}
+          {...otherProps}
+        />
+      )}
     </div>
   );
 };
@@ -63,6 +87,7 @@ Input.propTypes = {
   className: PropTypes.string,
   transparent: PropTypes.bool,
   type: PropTypes.string,
+  isTextArea: PropTypes.bool,
   value: PropTypes.any,
   onChange: PropTypes.func,
   onFocus: PropTypes.func,

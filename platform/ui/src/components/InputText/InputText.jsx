@@ -11,6 +11,8 @@ const InputText = ({
   onLabelClick,
   value,
   onChange,
+  className,
+  isTextArea,
 }) => {
   return (
     <InputLabelWrapper
@@ -21,13 +23,14 @@ const InputText = ({
     >
       <Input
         id={id}
-        className="border-primary-main mt-2 bg-black"
+        className={'border-primary-main mt-2 bg-black ' + className}
         type="text"
         containerClassName="mr-2"
         value={value}
         onChange={event => {
           onChange(event.target.value);
         }}
+        isTextArea
       />
     </InputLabelWrapper>
   );
@@ -38,6 +41,7 @@ InputText.defaultProps = {
   isSortable: false,
   onLabelClick: () => {},
   sortDirection: 'none',
+  isTextArea: false,
 };
 
 InputText.propTypes = {
@@ -48,6 +52,8 @@ InputText.propTypes = {
   onLabelClick: PropTypes.func,
   value: PropTypes.any,
   onChange: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  isTextArea: PropTypes.bool,
 };
 
 export default InputText;
